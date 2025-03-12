@@ -4,11 +4,12 @@
 ## <span style="color:purple"> Purpose </span>
 This script is designed to interact with the ExtremeCloud IQ (XIQ) API to manage SSIDs and Client Connectivity Groups (CCGs). The script performs the following tasks:
 
-1. Retrieves all devices and their radio information from the XIQ API.
-2. Creates a CSV file containing the Access Points (APs), radio, SSID, and BSSID, allowing for filtering based on SSID.
-3. Option to continue and add devices to CCG.
-4. (optional) Ensures that a CCG exists for each SSID. If a CCG does not exist, the script creates it and adds all devices with the SSID to the new CCG.
-5. (optional) If a CCG already exists, the script checks if any device with the SSID is not included in the CCG and adds it if necessary.
+1. Allows for VIQ_ID input for external accounts.
+2. Retrieves all devices and their radio information from the XIQ API.
+3. Creates a CSV file containing the Access Points (APs), radio, SSID, and BSSID, allowing for filtering based on SSID.
+4. Option to continue and add devices to CCG.
+5. (optional) Ensures that a CCG exists for each SSID. If a CCG does not exist, the script creates it and adds all devices with the SSID to the new CCG.
+6. (optional) If a CCG already exists, the script checks if any device with the SSID is not included in the CCG and adds it if necessary.
 
 This process helps maintain accurate and up-to-date CCGs based on the SSIDs present on the devices.
 
@@ -38,4 +39,5 @@ python XIQ_SSID_CCGs.py
 ```
 This script will prompt for the VIQ username and password. The password will be hidden as you type. 
     - optionally you can add an API token to the script and bypass the login function.
+If the VIQ user has access to external accounts, the script will ask if you would like to use an externally managed account. If you choose yes, you can then list out the VIQs you have access to and then enter the VIQ ID of the account you would like to use. 
 After the CSV file is created, the script will ask if you would like to continue with creating/updating CCGs. You will need to enter y or yes to continue.

@@ -171,6 +171,31 @@ class XIQ:
         return rawList['data']
 
     # External functions
+
+    ## Account Switch
+    def collectManagedAccount(self):
+        url = f"{self.URL}/account/external"
+        try:
+            data = self.__get_api_call(url)
+        except APICallFailedException as e:
+            raise APICallFailedException(e)
+        return data
+    
+    def setExternalAccount(self, viq_id):
+        url = f"{self.URL}/account/:switch?id={viq_id}"
+        payload = ''
+        try:
+            data = self.__post_api_call(url, payload)
+        except APICallFailedException as e:
+            raise APICallFailedException(e)
+        if "access_token" in data:
+            self.headers["Authorization"] = "Bearer " + data["access_token"]
+            return 0
+        else:
+            log_msg = f"Unknown Error: Unable to gain access token for XIQ - {viq_id}"
+            raise APICallFailedException(log_msg)
+
+    ## SSIDs
     def collectSSIDDeviceList(self, sim=False):
         page = 1
         pageCount = 1
@@ -199,7 +224,10 @@ class XIQ:
                         # build CSV data
                         ssid = wlan["ssid"]
                         if not sim:
-                            bssid = wlan["bssid"]
+                            if "bssid" in wlan:
+                                bssid = wlan["bssid"]
+                            else:
+                                bssid = "Unknown"
                         else:
                             bssid = "Simulated"
                         records.append({'device_name': device_name, "radio": radio_name, 'ssid': ssid, 'bssid': bssid})

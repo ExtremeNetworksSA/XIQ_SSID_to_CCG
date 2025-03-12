@@ -32,6 +32,8 @@ def exitOnEnter(errCode = 0):
     # 4 - failed to create CSV
     # 5 - failed to update CCG
     # 6 - failed to create CCG
+    # 7 - failed to collect external accounts
+
     
 def yesNoLoop(question):
     validResponse = False
@@ -82,6 +84,51 @@ else:
     x = XIQ(token=XIQ_API_token)
     logger.info("Logged in with token")
 
+# Get a list of external accounts
+try:
+    external_accounts = x.collectManagedAccount()
+except APICallFailedException as e:
+    logger.error(f"Failed to collect external accounts. {e}")
+    prbad("Failed to collect external accounts")
+    exitOnEnter(7)
+
+if len(external_accounts) > 1:
+    valid_response = False
+    while not valid_response:
+        response = yesNoLoop("Would you like to use an externally managed account?")
+        if response == 'n': 
+            valid_response = True
+            break
+        print("\nWhich VIQ would you like use?")
+        response = yesNoLoop("Would you like to see the list of VIQs?")
+        if response == 'y':
+            for viq in external_accounts:
+                print(f"VIQ ID: {viq['id']} - {viq['name']}")
+        viq_id = input("Enter the VIQ ID: ")
+        
+        try:
+            viq_id = int(viq_id)
+            if int(viq_id) in [viq['id'] for viq in external_accounts]:
+                try:
+                    x.setExternalAccount(viq_id)
+                except APICallFailedException as e:
+                    logger.error(f"Failed to set VIQ ID {viq_id}. {e}")
+                    prbad(f"Failed to set VIQ ID {viq_id}")
+                    exitOnEnter(8)
+                valid_response = True
+                prgood(f"VIQ ID {viq_id} set")
+                logger.info(f"VIQ ID {viq_id} set")
+            else:
+                prbad("VIQ ID not found in external accounts")
+                response = yesNoLoop("Would you like to try again?")
+                if response == 'n':
+                    exitOnEnter(0)
+        except ValueError:
+            prbad("Invalid VIQ ID. Please enter a valid integer.")
+            response = yesNoLoop("Would you like to try again?")
+            if response == 'n':
+                exitOnEnter(0)
+            
 # Get the list of device/SSIDs
 ## ssid_list for CSV
 ## SSID_data for JSON
